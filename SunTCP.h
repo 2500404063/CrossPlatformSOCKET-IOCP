@@ -1,13 +1,20 @@
 #pragma once
+/*
+Name: A async TCP pack across Platform
+Author: Peng
+Time:2019.7.11
+Version:1.0.0.2
+Brief Introduction:
 
-#include <iostream>
 
-#include <string>
+*/
 #ifdef _MSC_VER
+#include <string>
 #include <WinSock2.h>
 #include <WS2tcpip.h>
 #include <Windows.h>
 #include <thread>
+#include <limits.h>
 #pragma comment(lib,"ws2_32.lib")
 #endif // _MSC_VER
 
@@ -29,7 +36,7 @@ typedef struct _PER_IO_CONTEXT {
 	unsigned int		mSock;
 	sockaddr_in			mEip;
 	WSABUF				mWsabuf;
-	char				mBuffer[0x10000]{ 0 };
+	char				mBuffer[0XFFFFF]{ 0 };
 	unsigned short		mOperator;
 
 } PER_IO_CONTEXT, * PPER_IO_CONTEXT, INFO, * PINFO;
@@ -50,11 +57,12 @@ public:
 	char* GetData(PINFO info);
 	unsigned int GetDataSize(PINFO info);
 	void Close(PINFO info);
+	void Close(int sock);
 	void Send(PINFO info, const char* data);
+	void Send(SOCKET sock, const char* data);
 private:
 	void* com;
 	void Worker();
-	void ClientWorker();
 	void Accepting(unsigned int server);
 	Callback callAccept = 0, callReceive = 0, callLeft = 0;
 };
@@ -94,6 +102,7 @@ public:
 	unsigned int GetDataSize(PINFO info);
 	void Close(PINFO info);
 	void Send(PINFO info, const char* data);
+	void Send(int sock, const char* data);
 private:
 	int epfd = 0;
 	int MaxPlayer = 0x10000;
@@ -103,3 +112,21 @@ private:
 };
 
 #endif
+#define _CRT_SECURE_NO_WARNINGS
+#include <vector>
+#include <fstream>
+#include <time.h>
+class DataTools
+{
+public:
+	DataTools();
+	~DataTools();
+	std::string EncodeLenAStr(const char* instr, short area);
+	std::vector<std::string> DecodeLenAStr(const char* instr, short area);
+	void Log_Out(const char* filename, std::string level, std::string content);
+	void Log_DEBUG(const char* filename, const char* content);
+	void Log_WARN(const char* filename, const char* content);
+	void Log_ERROR(const char* filename, const char* content);
+private:
+
+};
