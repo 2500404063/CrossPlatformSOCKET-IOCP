@@ -1,7 +1,0 @@
-sun_socket：
-这个是同步的TCP，跨Linux和Windows
-SunTCP：
-这个是异步的TCP，跨Linux和Windows
-两个都是初步版本，尚未完善。有能力者欢迎完善。
-该项目在GITHUB（https://github.com/2500404063/）有发布。
-遵循MIT开源协议。
