@@ -123,12 +123,12 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="SunTCP.h" />
+    <ClInclude Include="sun_epoll.h" />
     <ClInclude Include="sun_iocp.h" />
     <ClInclude Include="sun_socket.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="SunTCP.cpp" />
+    <ClCompile Include="sun_epoll.cpp" />
     <ClCompile Include="sun_iocp.cpp" />
     <ClCompile Include="sun_socket.cpp" />
     <ClCompile Include="源.cpp" />
