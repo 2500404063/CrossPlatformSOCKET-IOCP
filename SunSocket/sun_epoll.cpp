@@ -38,20 +38,20 @@ int sun_epoll::WSASend(PMoreInfo more, std::string data, unsigned long len)
 	INFO info;
 	info.data.ptr = more;
 	info.events = EPOLLOUT | EPOLLRDHUP | EPOLLHUP | EPOLLET;
-	epoll_ctl(this->com, EPOLL_CTL_MOD, more->fd, &info);
+	epoll_ctl(this->com, EPOLL_CTL_MOD, more->mSock, &info);
 	more->SendBuffer.append(data);
 	more->SendBufferLen = len;
-	ssize_t sentlen = send(more->fd, &more->SendBuffer.at(0), more->SendBufferLen, 0);
+	ssize_t sentlen = send(more->mSock, &more->SendBuffer.at(0), more->SendBufferLen, 0);
 	more->SentLen = sentlen;
 	return sentlen;
 }
 int sun_epoll::WSASend(SOCKET sock, std::string data, unsigned long len)
 {
 	INFO info;
-	info.data.fd = sock; //������Ҫ���һ��
+	info.data.mSock = sock;
 	info.events = EPOLLOUT | EPOLLRDHUP | EPOLLHUP | EPOLLET;
-	epoll_ctl(this->com, EPOLL_CTL_MOD, info.data.fd, &info);
-	ssize_t sentlen = send(info.data.fd, &data.at(0), len, 0); //�ڶ����������Ƿ���Ҫȫ��?
+	epoll_ctl(this->com, EPOLL_CTL_MOD, info.data.mSock, &info);
+	ssize_t sentlen = send(info.data.mSock, &data.at(0), len, 0);
 	return sentlen;
 }
 int sun_epoll::WSARecv(PMoreInfo more)
@@ -59,24 +59,24 @@ int sun_epoll::WSARecv(PMoreInfo more)
 	INFO info;
 	info.data.ptr = more;
 	info.events = EPOLLIN | EPOLLRDHUP | EPOLLHUP | EPOLLET;
-	epoll_ctl(this->com, EPOLL_CTL_MOD, more->fd, &info);
+	epoll_ctl(this->com, EPOLL_CTL_MOD, more->mSock, &info);
 }
 int sun_epoll::WSABind(PMoreInfo more)
 {
 	INFO info;
 	info.data.ptr = more;
-	setnonblocking(more->fd);
-	epoll_ctl(this->com, EPOLL_CTL_ADD, more->fd, &info);
+	setnonblocking(more->mSock);
+	epoll_ctl(this->com, EPOLL_CTL_ADD, more->mSock, &info);
 }
 int sun_epoll::WSAUnBind(PMoreInfo more)
 {
 	INFO info;
 	info.data.ptr = more;
-	epoll_ctl(this->com, EPOLL_CTL_DEL, more->fd, &info);
+	epoll_ctl(this->com, EPOLL_CTL_DEL, more->mSock, &info);
 }
 void sun_epoll::WSASetINFO(PMoreInfo more, unsigned int sock, sockaddr_in eip, unsigned long buffer_size)
 {
-	more->fd = sock;
+	more->mSock = sock;
 	more->RecvBuffer.clear();
 	more->RecvBuffer.resize(buffer_size);
 	more->RecvBufferLen = buffer_size;
@@ -84,7 +84,7 @@ void sun_epoll::WSASetINFO(PMoreInfo more, unsigned int sock, sockaddr_in eip, u
 }
 void sun_epoll::WSASetINFO(PMoreInfo more, unsigned int sock, const char *ip, int port, unsigned long buffer_size)
 {
-	more->fd = sock;
+	more->mSock = sock;
 	more->RecvBuffer.clear();
 	more->RecvBuffer.resize(buffer_size);
 	more->RecvBufferLen = buffer_size;
@@ -126,7 +126,7 @@ void sun_epoll::WSAStatus(WAITStatus *out, unsigned int timeoutms)
 			else if (events[i].events & EPOLLIN)
 			{
 				PMoreInfo more = (PMoreInfo)events[i].data.ptr;
-				unsigned long len = recv(more->fd, &more->RecvBuffer.at(0), more->RecvBufferLen, 0);
+				unsigned long len = recv(more->mSock, &more->RecvBuffer.at(0), more->RecvBufferLen, 0);
 				more->DataLen = len;
 
 				out->status = WAIT_STATUS::Recv;
@@ -136,7 +136,7 @@ void sun_epoll::WSAStatus(WAITStatus *out, unsigned int timeoutms)
 			else if (events[i].events & EPOLLOUT)
 			{
 				PMoreInfo more = (PMoreInfo)events[i].data.ptr;
-				ssize_t len = send(more->fd, &more->SendBuffer.at(0) + more->SentLen, more->SendBufferLen - more->SentLen, 0);
+				ssize_t len = send(more->mSock, &more->SendBuffer.at(0) + more->SentLen, more->SendBufferLen - more->SentLen, 0);
 				more->SentLen += len;
 
 				out->status = WAIT_STATUS::Send;
@@ -160,7 +160,7 @@ char *sun_epoll::WSAGetIP(PMoreInfo more)
 }
 SOCKET sun_epoll::WSAGetSocket(PMoreInfo more)
 {
-	return more->fd;
+	return more->mSock;
 }
 unsigned short sun_epoll::WSAGetPort(PMoreInfo more)
 {
