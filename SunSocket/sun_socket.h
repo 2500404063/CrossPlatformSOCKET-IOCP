@@ -1,6 +1,8 @@
 #ifndef sun_socket_define
 #define sun_socket_define
 
+#include <string>
+
 #ifdef _MSC_VER
 #if defined(_WIN64)
 typedef long int ssize_t;
@@ -18,7 +20,7 @@ typedef unsigned int SOCKET;
 #ifdef _MSC_VER
 #include <WinSock2.h>
 #include <WS2tcpip.h>
-#include <string>
+#include <vector>
 #pragma comment(lib, "ws2_32.lib")
 class __declspec(dllexport) sun_socket
 {
@@ -40,6 +42,8 @@ public:
 	int Connect(SOCKET &sock, const char *ip, unsigned int port);
 	void Getip(sockaddr_in eip, char *ip, int size_ip);
 	void Getport(sockaddr_in eip, unsigned short *port);
+	std::string EncodeLenAStr(const char* instr, short area);
+	std::vector<std::string> DecodeLenAStr(const char* instr, short area);
 };
 #endif
 
@@ -49,6 +53,7 @@ public:
 #include <arpa/inet.h>
 #include <unistd.h>
 #include <string.h>
+#include <vector>
 class sun_socket
 {
 public:
@@ -65,6 +70,8 @@ public:
 	int Connect(SOCKET &sock, const char *ip, unsigned int port);
 	void Getip(sockaddr_in eip, char *ip, int size_ip);
 	void Getport(sockaddr_in eip, unsigned short *port);
+	std::string EncodeLenAStr(const char* instr, short area);
+	std::vector<std::string> DecodeLenAStr(const char* instr, short area);
 };
 #endif
 
